@@ -35,12 +35,11 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   /*
-  *
-  * Variables
-  *
-  * */
+   * Variables
+   */
   //question index
   int qIndex = 0;
+  //questions objects list
   List<Quiz> questions = [
     Quiz(question: 'الزمالك هياخد الدوري', correctAnswer: false),
     Quiz(question: 'الشاي فيه منه نوعين بس', correctAnswer: false),
@@ -49,15 +48,12 @@ class _QuizPageState extends State<QuizPage> {
     Quiz(question: 'بتحب محمد سلامة', correctAnswer: true),
     Quiz(question: 'محمد بيحب أماني', correctAnswer: true),
   ];
-
+  // score bar icons list
   List<Icon> scoreBar = [];
 
   /*
-  *
-  *
-  * Methods
-  *
-  * */
+   * Methods
+   */
 
   @override
   Widget build(BuildContext context) {
@@ -160,5 +156,5 @@ class _QuizPageState extends State<QuizPage> {
     });
   } //updateScore
 
-///////////////////////////////////////////////
+///////////////////// THE END //////////////////////////
 } // Class End.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Quiz.dart';
+import 'package:quizzler/questions_bank.dart';
+import 'question.dart';
 
 void main() => runApp(MyApp());
 
@@ -37,17 +38,11 @@ class _QuizPageState extends State<QuizPage> {
   /*
    * Variables
    */
-  //question index
-  int qIndex = 0;
-  //questions objects list
-  List<Quiz> questions = [
-    Quiz(question: 'الزمالك هياخد الدوري', correctAnswer: false),
-    Quiz(question: 'الشاي فيه منه نوعين بس', correctAnswer: false),
-    Quiz(question: 'محمد سلامة أروع واحد في العالم', correctAnswer: true),
-    Quiz(question: 'لو مكنتش سلامة كنت تتمنى تكون سلامة', correctAnswer: true),
-    Quiz(question: 'بتحب محمد سلامة', correctAnswer: true),
-    Quiz(question: 'محمد بيحب أماني', correctAnswer: true),
-  ];
+  int correctAnswersCounter = 0;
+  int wrongAnswersCounter = 0;
+  String state = 'start';
+  //create a question bank object
+  QuestionBank questionBank = QuestionBank();
   // score bar icons list
   List<Icon> scoreBar = [];
 
@@ -67,11 +62,11 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(15.0),
             child: Center(
               child: Text(
-                questions[qIndex].toString(),
+                textToDisplay(state),
                 textAlign: TextAlign.center,
                 softWrap: true,
                 style: TextStyle(
-                    fontFamily: 'Harmattan', color: Colors.white, fontSize: 30),
+                    fontFamily: 'Harmattan', color: Colors.white, fontSize: 35),
               ),
             ),
           ),
@@ -82,8 +77,11 @@ class _QuizPageState extends State<QuizPage> {
         ),
         Expanded(
           flex: 1,
-          child: Row(
-            children: scoreBar,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              children: scoreBar,
+            ),
           ),
         ),
       ],
@@ -101,7 +99,7 @@ class _QuizPageState extends State<QuizPage> {
             'صحيح',
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontFamily: 'Tajawal', color: Colors.white, fontSize: 20),
+                fontFamily: 'Tajawal', color: Colors.white, fontSize: 22),
           ),
           onPressed: () {
             check(true); // green == true
@@ -114,11 +112,9 @@ class _QuizPageState extends State<QuizPage> {
             'خطأ',
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontFamily: 'Tajawal', color: Colors.white, fontSize: 20),
+                fontFamily: 'Tajawal', color: Colors.white, fontSize: 22),
           ),
           onPressed: () {
-            print('red button pressed');
-            //check answer
             check(false); // red == false
             update();
           },
@@ -129,32 +125,39 @@ class _QuizPageState extends State<QuizPage> {
 
 // method to check user answer
   void check(bool buttonClicked) {
-    if (questions[qIndex].correctAnswer == buttonClicked) {
-      print('Correct!');
-      scoreBar.add(Icon(
-        Icons.check,
-        color: Colors.green,
-      ));
-    } else {
-      print('Wrong!');
-      scoreBar.add(Icon(
-        Icons.clear,
-        color: Colors.red[500],
-      ));
+    if (state != 'over') {
+      if (questionBank.correctAnswer() == buttonClicked) {
+        scoreBar.add(
+          Icon(
+            Icons.check,
+            color: Colors.green,
+          ),
+        );
+        correctAnswersCounter++;
+      } else {
+        scoreBar.add(
+          Icon(
+            Icons.clear,
+            color: Colors.red[500],
+          ),
+        );
+        wrongAnswersCounter++;
+      }
     }
   } //check
 
 //method to update UI
   void update() {
     setState(() {
-      if (qIndex < questions.length - 1) {
-        qIndex += 1;
-      } else {
-        qIndex = 0;
-        scoreBar.clear();
-      }
+      state = questionBank.nextQuestion();
     });
   } //updateScore
 
+  String textToDisplay(state) {
+    if (state == 'over') {
+      return "Score\n$correctAnswersCounter / ${questionBank.size}";
+    } else
+      return questionBank.questionText().toString();
+  }
 ///////////////////// THE END //////////////////////////
 } // Class End.

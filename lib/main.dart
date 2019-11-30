@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quizzler/questions_bank.dart';
-import 'question.dart';
+import 'score.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,15 +12,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.black,
         appBar: AppBar(
+          backgroundColor: Colors.yellow,
           centerTitle: true,
           title: Text(
             'Silly Quizzler',
             style: TextStyle(
                 fontSize: 35,
-                color: Colors.white,
-                fontFamily: 'Vibes',
+                color: Colors.black,
+                fontFamily: 'Amiri',
                 letterSpacing: 4),
           ),
         ),
@@ -38,13 +40,11 @@ class _QuizPageState extends State<QuizPage> {
   /*
    * Variables
    */
-  int correctAnswersCounter = 0;
-  int wrongAnswersCounter = 0;
   String state = 'start';
-  //create a question bank object
+
+  //create a question bank and a score objects
   QuestionBank questionBank = QuestionBank();
-  // score bar icons list
-  List<Icon> scoreBar = [];
+  Score scoreKeeper = Score();
 
   /*
    * Methods
@@ -62,7 +62,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(15.0),
             child: Center(
               child: Text(
-                textToDisplay(state),
+                questionBank.questionText().toString(),
                 textAlign: TextAlign.center,
                 softWrap: true,
                 style: TextStyle(
@@ -80,7 +80,7 @@ class _QuizPageState extends State<QuizPage> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Row(
-              children: scoreBar,
+              children: scoreKeeper.scoreBar,
             ),
           ),
         ),
@@ -127,21 +127,20 @@ class _QuizPageState extends State<QuizPage> {
   void check(bool buttonClicked) {
     if (state != 'over') {
       if (questionBank.correctAnswer() == buttonClicked) {
-        scoreBar.add(
+        scoreKeeper.addIcon(
           Icon(
             Icons.check,
             color: Colors.green,
           ),
         );
-        correctAnswersCounter++;
+        scoreKeeper.score++; // increment user score
       } else {
-        scoreBar.add(
+        scoreKeeper.addIcon(
           Icon(
             Icons.clear,
             color: Colors.red[500],
           ),
         );
-        wrongAnswersCounter++;
       }
     }
   } //check
@@ -150,14 +149,18 @@ class _QuizPageState extends State<QuizPage> {
   void update() {
     setState(() {
       state = questionBank.nextQuestion();
+      if (state == 'over') {
+        Alert(
+                context: context,
+                title: "Score",
+                desc: "${scoreKeeper.score} / ${questionBank.size}")
+            .show();
+        scoreKeeper.resetScore();
+        questionBank.resetQuestions();
+        state = 'start';
+      }
     });
-  } //updateScore
+  } //updateScore and ui
 
-  String textToDisplay(state) {
-    if (state == 'over') {
-      return "Score\n$correctAnswersCounter / ${questionBank.size}";
-    } else
-      return questionBank.questionText().toString();
-  }
 ///////////////////// THE END //////////////////////////
 } // Class End.
